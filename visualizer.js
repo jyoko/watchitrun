@@ -34,8 +34,7 @@ var updateCode = function(func) {
   });
   $('#code').append($func);
 
-  var parsed = esprima.parse(toRun, {loc: true});
-  runner = new WatchItRun(parsed);
+  runner = WatchItRun(toRun);
   console.log(runner);
 
 };
