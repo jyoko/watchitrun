@@ -12,7 +12,7 @@ function second(arr, cb) {
   return arr;
 }
 
-console.log(first([1,2,3,4,5]));
+first([1,2,3,4,5]);
 `;
 
 $('#codeSource').val(str);
@@ -72,7 +72,7 @@ var highlightLine = function(line,end) {
 
 var stepForward = function() {
   var cur = -1;
-  var exec = runner.highlight;
+  var exec = runner.active.highlight;
   return function() {
     if (cur>-1) highlightLine.apply(null,exec[cur]);
     if (cur+1===exec.length) cur = -1;
