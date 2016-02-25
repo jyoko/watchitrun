@@ -28,6 +28,7 @@ var WatchItRun = function(source,params) {
       return param.name;
     });
   }
+  var _self = this;
   var _body = _ast.body;
   var _hoisted = [];
   var _highlight = [];
@@ -89,8 +90,7 @@ var WatchItRun = function(source,params) {
 
         case 'ReturnStatement':
           toHighlight(node.loc);
-
-
+          parseReturn(node);
           break;
       }
     });
@@ -152,10 +152,12 @@ var WatchItRun = function(source,params) {
     },{});
   };
 
-  /*
-   * Convenience functions
-   *
-   */
+  var parseReturn = function(node) {
+    var parsed = {};
+    parsed.value = convertExpression(node.argument);
+    parsed.node = node;
+    _stack.unshift(parsed);
+  };
 
   var toHighlight = function(location) {
     _highlight.push([location.start.line-1,location.end.line-1]);
@@ -171,13 +173,22 @@ var WatchItRun = function(source,params) {
       global = true;
     }
 
-    // TODO: remove this
+    // TODO:  remove this, handle global call appropriately
+    //        some handling code in here, may need to punt & filter or throw
     console.log(name);
 
-    this.active = scope[name];
-    var begin = scope[name].body[0].loc.start.line-1;
-    var end = scope[name].body[0].loc.end.line;
-    var toRun = _source.slice(begin,end).join('\n');
+    // this is messy, TODO: set active
+    _active = scope[name]
+    _self.active = scope[name];
+
+    /*
+     * old plan
+     * var begin = scope[name].body[0].loc.start.line-1;
+     * var end = scope[name].body[0].loc.end.line;
+     * var toRun = _source.slice(begin,end).join('\n');
+     */
+
+    var toRun = _active.stack.pop();
 
     // setup function scope
     var funcScope = {};
@@ -205,7 +216,8 @@ var WatchItRun = function(source,params) {
       }
     });
 
-    console.log(withVarEval(toRun,funcScope));
+    console.log(toRun);
+    //console.log(withVarEval(toRun,funcScope));
   };
 
   var contextEval = function(code, context) {
